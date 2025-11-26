@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        BACKEND_IMAGE = "cafe-backend"
+        FRONTEND_IMAGE = "cafe-frontend"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Pulling code from GitHub..."
+                git branch: 'main', url: 'https://github.com/nguyenducvu3648/cafe-management'
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                echo "Building backend with Maven..."
+                sh './mvnw clean package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                echo "Building Docker images..."
+                sh 'docker build -t $BACKEND_IMAGE .'
+                sh 'docker build -t $FRONTEND_IMAGE ./frontend'
+            }
+        }
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                echo "Deploying containers with Docker Compose..."
+                sh 'docker-compose down'
+                sh 'docker-compose up -d --build'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CI/CD pipeline completed successfully!"
+        }
+        failure {
+            echo "CI/CD pipeline failed."
+        }
+    }
+}
