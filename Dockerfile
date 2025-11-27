@@ -23,7 +23,7 @@ WORKDIR /app
 # Copy jar from builder
 COPY --from=builder /app/target/cafe-management-1.0.0.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
