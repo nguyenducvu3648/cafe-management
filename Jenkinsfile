@@ -23,7 +23,7 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                echo "Building Docker images..."
+                echo "Building Docker images for backend and frontend..."
                 sh 'docker build -t $BACKEND_IMAGE .'
                 sh 'docker build -t $FRONTEND_IMAGE ./frontend'
             }
@@ -32,8 +32,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 echo "Deploying containers with Docker Compose..."
-                sh 'docker-compose down'
-                sh 'docker-compose up -d --build'
+                
+                // Đảm bảo rằng các container không bị dừng lại ngoài ý muốn
+                sh 'docker-compose down --remove-orphans' // Dừng các container không còn được sử dụng
+                sh 'docker-compose up -d --build' // Khởi động lại với Docker Compose, build lại các dịch vụ mới
             }
         }
     }

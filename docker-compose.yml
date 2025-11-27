@@ -58,10 +58,28 @@ services:
     networks:
       - cafe-network
 
+  # Jenkins Service
+  jenkins:
+    image: jenkins/jenkins:lts-jdk21  # Jenkins image với Java 21 (LTS)
+    container_name: cafe-jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Jenkins UI port
+      - "50000:50000"  # Port cho Jenkins agents
+    volumes:
+      - jenkins_home:/var/jenkins_home  # Dữ liệu Jenkins sẽ được lưu trữ ngoài container
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - cafe-network
+    environment:
+      JENKINS_OPTS: "--httpPort=8080"
+    depends_on:
+      - backend  # Jenkins cần phải chạy sau backend
+
 networks:
   cafe-network:
     driver: bridge
 
 volumes:
   mysql_data:
-
+  jenkins_home:
