@@ -1,5 +1,5 @@
 # Sử dụng OpenJDK 21 làm nền tảng
-FROM openjdk:21-jdk
+FROM openjdk:21
 
 # Cài đặt các gói cần thiết
 RUN apt-get update && apt-get install -y \
