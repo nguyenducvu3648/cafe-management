@@ -15,9 +15,17 @@ pipeline {
         }
 
         stage('Build Backend') {
+            agent {
+                docker {
+                    image 'eclipse-temurin:20-jdk' // Container tạm để build Java 20
+                    args '-u root:root'           // Nếu cần quyền root trong container
+                }
+            }
             steps {
-                echo "Building backend with Maven..."
+                echo "Building backend with Maven (Java 20)..."
                 sh './mvnw clean package -DskipTests'
+                sh 'java -version'
+                sh 'javac -version'
             }
         }
 
@@ -32,8 +40,6 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 echo "Deploying containers with Docker Compose..."
-                
-                // Nếu docker-compose.yml nằm trong folder 'deployment'
                 dir('deployment') {
                     sh 'docker-compose down --remove-orphans'
                     sh 'docker-compose up -d --build'

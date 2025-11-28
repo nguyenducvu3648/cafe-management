@@ -1,33 +1,43 @@
-# Sử dụng OpenJDK 21 làm nền tảng
-FROM openjdk:21
+# Sử dụng OpenJDK 17 làm nền tảng
+FROM eclipse-temurin:17-jdk
 
-# Cài đặt các gói cần thiết
+# Cài đặt các gói cần thiết và cập nhật CA certificates
 RUN apt-get update && apt-get install -y \
     wget \
-    gnupg \
     curl \
     bash \
     sudo \
     ca-certificates \
     lsb-release \
-    && rm -rf /var/lib/apt/lists/*  # Dọn dẹp bộ nhớ cache apt để giảm kích thước image
+    git \
+    unzip \
+    gnupg \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Cài đặt Docker trong container
+# Cài đặt Docker trong container (nếu cần)
 RUN curl -fsSL https://get.docker.com | bash
 
-# Cài đặt Docker Compose
+# Cài đặt Docker Compose (nếu cần)
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose \
     && chmod +x /usr/local/bin/docker-compose
 
-# Tải Jenkins WAR file (cập nhật phiên bản mới nhất nếu cần)
-RUN wget https://get.jenkins.io/war/2.319.1/jenkins.war -O /opt/jenkins.war
+# Tạo thư mục Jenkins home và user jenkins
+RUN mkdir -p /var/jenkins_home && \
+    useradd -m -d /var/jenkins_home jenkins && \
+    chown -R jenkins:jenkins /var/jenkins_home
 
-# Mở cổng 8080 cho Jenkins
+# Thiết lập biến môi trường Jenkins home
+ENV JENKINS_HOME=/var/jenkins_home
+
+# 🔥 TẢI JENKINS BẢN LTS MỚI NHẤT
+RUN wget https://get.jenkins.io/war-stable/2.479.3/jenkins.war -O /opt/jenkins.war
+
+# Mở cổng Jenkins
 EXPOSE 8080
 
-# Tạo user jenkins và chuyển về user đó để chạy Jenkins
-RUN useradd -m jenkins
+# Chuyển sang user jenkins để chạy Jenkins
 USER jenkins
 
-# Lệnh chạy Jenkins
+# Lệnh khởi chạy Jenkins
 CMD ["java", "-jar", "/opt/jenkins.war"]
