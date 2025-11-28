@@ -58,7 +58,6 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Deploy containers
-        working-directory: deployment
         run: |
           docker-compose down --remove-orphans
           docker-compose up -d --build
