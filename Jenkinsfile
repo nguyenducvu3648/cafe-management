@@ -41,8 +41,9 @@ pipeline {
             steps {
                 echo "Deploying containers with Docker Compose..."
                 dir('deployment') {
-                    sh 'docker-compose down --remove-orphans'
-                    sh 'docker-compose up -d --build'
+                    // dùng project name khác để tách container pipeline ra khỏi container host
+                    sh "docker-compose -p cafe_pipeline_${BUILD_NUMBER} down --remove-orphans"
+                    sh "docker-compose -p cafe_pipeline_${BUILD_NUMBER} up -d --build"
                 }
             }
         }
